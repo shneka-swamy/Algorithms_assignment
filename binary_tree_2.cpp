@@ -40,14 +40,14 @@ class tree{
 				// To break out of the main loop.
 				if(j>n)
 					break;
-				// Step B3 -- Implementation
+				// Step B4 -- Implementation
 				y = l[j];
 				k = 0;
 				while(r[y]>0){
 					k = y;
 					y = r[y];
 				}
-				// Step B4 implemetation.
+				// Step B5 implemetation.
 				if(k>0)
 					r[k] = 0;
 				else
