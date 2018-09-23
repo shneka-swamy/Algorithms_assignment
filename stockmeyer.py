@@ -48,30 +48,106 @@ def join_horizontal(temp , Left, Right,val):
             j = j-1
     temp[val] = inter
 
+def bt_vertical(lt_tree,L,R,refer):
+    k = len(L)
+    m = len(R)
+    i =0
+    j = 0
 
-def topdown(expr, temp, h_w, t_d):
+    while(i<k and j<m):
+        value = (max(L[i][0],R[j][0]), L[i][1]+R[j][1])
+        if(refer[0]== value[0] and refer[1]== value[1]):
+            lt_tree.append((L[i][0],L[i][1]))
+            lt_tree.append((R[j][0],R[j][1]))
+            break
+        else:
+            if(L[i][1] > R[j][1]):
+                i = i-1
+            elif(L[i][1] < R[j][1]):
+                j = j-1
+            else:
+                i = i-1
+                j = j-1
+
+def bt_horizontal(lt_tree,L,R,refer):
+    i = len(L) - 1
+    j = len(R) - 1
+
+    while(i>=0 and j>=0):
+        value = (L[i][0]+R[j][0],max(L[i][1],R[j][1]))
+        if(refer[0]== value[0] and refer[1]== value[1]):
+            lt_tree.append((L[i][0],L[i][1]))
+            lt_tree.append((R[j][0],R[j][1]))
+            break
+        else:
+            if(L[i][1] > R[j][1]):
+                i = i-1
+            elif(L[i][1] < R[j][1]):
+                j = j-1
+            else:
+                i = i-1
+                j = j-1
+    
+            
+        
+
+def topdown(expr, temp, h_w, t_d, orientation):
     n = len(expr)
     L = []
     R = []
-    
+    lt_tree = []
+
     for i in range(0,n,3):
         L[:] = []
         R[:] = []
+        flag_1 = 0
+        flag_2 = 0
+        lt_tree[:] = []
+
+        refer = t_d.pop()
 
         if(type(expr[i]) == int):
-            inter = expr[i] - 1
-            L.append(h_w[inter])
+           make_list(L,h_w,expr[i]-1)
+           flag_1 = 1
         else:
-            L = temp[int(expr[i][1])]
+           L = temp[int(expr[i][1])]
 
-        if(type(expr[i+1]) == int):
-            inter = expr[i+1]-1
-            R.append(h_w[inter])
+        if(type(expr[i+1])== int):
+            make_list(R,h_w,expr[i+1]-1)
+            flag_2 = 1
         else:
             R = temp[int(expr[i+1][1])]
+            
 
-        print(L)
-        print(R)
+        if(expr[i+2] == 'v' or expr[i+2] == 'V'):
+            bt_vertical(lt_tree,L,R,refer)
+            #print(lt_tree)
+        else:
+            bt_horizontal(lt_tree,L,R,refer)
+            #print(lt_tree)
+            
+        #To check for the presence of leaf node
+
+        if(flag_1 == 1 and flag_2 == 1):
+            if(h_w[expr[i]-1][0] != lt_tree[0][0]):
+                orientation[expr[i]-1] = 1
+            if(h_w[expr[i+1]-1][0] != lt_tree[1][0]):
+                orientation[expr[i+1]-1] = 1
+        elif(flag_1 == 1):
+            if(h_w[expr[i]-1][0] != lt_tree[0][0]):
+                orientation[expr[i]-1] = 1
+            t_d.append(lt_tree[1])
+        elif(flag_2 == 1):
+            if(h_w[expr[i+1]-1][0] != lt_tree[1][0]):
+                orientation[expr[i+1]-1] = 1
+            t_d.append(lt_tree[0])
+        else:
+            t_d.append(lt_tree[0])
+            t_d.append(lt_tree[1])
+    print("\n")
+    print("'1' refers to rotate the block, '0' refers to maintain the block")
+    print("The reqired orientation is,")
+    print(orientation)
         
 def optimal_solution (p_e,h_w):
 
@@ -84,7 +160,8 @@ def optimal_solution (p_e,h_w):
     index = (m*3) - 1 # this is used for forming the array required for top-down tree approach
     expr = [0]*(m*3) # Top- down array formed
     temp = [[]]*m # This a list of list for storing the list at internal nodes.
-    
+
+    orientation = [0]*(m+1)
     # Bottom- up part of the code
     for i in range(0,n):
         Left[:] = []
@@ -125,7 +202,7 @@ def optimal_solution (p_e,h_w):
                 else:
                     join_vertical(temp,temp[int(le[1])],temp[int(ri[1])],val)
 
-                print(temp)
+                #print(temp)
                 
             elif(p_e[i]=='h' or p_e[i] == 'H'):
                 if(type(le) == int and type(ri) == int):
@@ -140,7 +217,7 @@ def optimal_solution (p_e,h_w):
                     join_horizontal(temp,Left,temp[int(ri[1])],val)
                 else:
                     join_horizontal(temp,temp[int(le[1])],temp[int(ri[1])],val)
-                print(temp)
+                #print(temp)
         
             stack.append('D'+str(val))
             val+=1
@@ -162,14 +239,14 @@ def optimal_solution (p_e,h_w):
 
     
     print("The efficient height and width are  "+str(height)+" X "+str(width))
-    print(expr)
+    #print(expr)
 
     t_d = [(height,width)]
-    topdown(expr, temp, h_w, t_d)
+    topdown(expr, temp, h_w, t_d, orientation)
                    
                    
     
 #optimal_solution([1,2,3,'V',4,'V','V'],[(5,2),(5,4),(5,6),(5,7)])
 #optimal_solution([1,2,'H',3,4,'H','V'],[(2,4),(3,4),(2,4),(3,4)])      
 optimal_solution([1,2,3,4,'H','V',5,6,'V','H','V'],
-                 [(10,5),(7,2),(4,5),(3,5),(3,3),(3,4)])
+                 [(5,10),(7,2),(5,4),(3,5),(3,3),(4,3)])
