@@ -1,4 +1,5 @@
 import random
+import calcarea
 
 def adj_operand(p_e, adj):
     # To get all the operators adjacent to each other as a list
@@ -79,43 +80,59 @@ def move_two (p_e, oi):
 def move_three (p_e, opr):
     ran = opr[random.randint(0,len(opr)-1)]
 
+    no_oper = 0
+    no_operand = 0
+    flag = True
+    
     if(p_e[ran] == '+' or p_e[ran] == '*'):
         if(p_e[ran] != p_e[ran+2]):
             dup = p_e[ran]
             p_e[ran] = p_e[ran+1]
             p_e[ran+1] = dup
     else:
-        if(p_e[ran] != p_e[ran-2]):
-           dup = p_e[ran]
-           p_e[ran] = p_e[ran+1]
-           p_e[ran+1] = dup
+        if(p_e[ran+1] != p_e[ran-1]):
+            for i in range(0,ran+1):
+                if(p_e[i] == '+' or p_e[i] == '*'):
+                    no_oper+=1
+                else:
+                    no_operand +=1
+                if(no_operand  <= no_oper+1):
+                    flag = False
+                    break
+            if(flag):
+                dup = p_e[ran]
+                p_e[ran] = p_e[ran+1]
+                p_e[ran+1] = dup
 
     
-def simulated(p_e, h, w):
-  adj = []
-  oi = []
-  opr = []
-  adj_operand(p_e,adj)
-  print (adj)
-  operator_index(p_e,oi)
-  print(oi)
-  #choice = random.randint(1,3)
-  print(p_e)
-  choice = 3
-  if(choice ==1):
-      move_one (p_e,adj)
-      print(p_e)
-      print(adj)
-  elif(choice == 2):
-      move_two (p_e, oi)
-      print(p_e)
-  else:
-      opr[:] = []
-      oper_opra(p_e, opr)
-      print (opr)
-      move_three (p_e, opr)
-      print(p_e)
+def simulated(p_e, h_w):
+    calcarea.optimal_solution(p_e, h_w)
+    for i in range(1,100):
+        adj = []
+        oi = []
+        opr = []
+        adj_operand(p_e,adj)
+        
+        operator_index(p_e,oi)
+    
+        choice = random.randint(1,3)
+
+        if(choice ==1):
+            move_one (p_e,adj)
+            calcarea.optimal_solution (p_e, h_w)
+            print(p_e)
+        elif(choice == 2):
+            move_two (p_e, oi)
+            calcarea.optimal_solution (p_e, h_w)
+            print(p_e)
+        else:
+            opr[:] = []
+            oper_opra(p_e, opr)
+            move_three (p_e, opr)
+            calcarea.optimal_solution (p_e, h_w)
+            print(p_e)
       
 
 
-simulated([1,2,3,4,'+','*',5,6,'*','+','*'], [10,7,4,3,3,3], [5,2,5,5,3,4]) 
+simulated([1,2,3,4,'+','*',5,6,'*','+','*'],
+                 [(5,10),(7,2),(5,4),(3,5),(3,3),(4,3)])
