@@ -19,6 +19,18 @@ def operator_index(p_e, oi):
             while(i<size and (p_e[i] == '*' or p_e[i] == '+')):
                 i+=1
         i+=1
+
+def oper_opra(p_e,opr):
+    i = 0
+    while(i<len(p_e)):
+        i+=1
+        if(not( p_e[i-1] == '+' or p_e[i-1] == '*')):
+            if(i<len(p_e) and (p_e[i] == '+' or p_e[i] == '*')):
+                opr.append(i-1)
+        else:
+            if(i<len(p_e) and (not(p_e[i] == '+' or p_e[i]=='*'))):
+                opr.append(i-1)
+        
 def move_one (p_e, adj):
     # Swap Adjacent operators
     size = len(adj)
@@ -64,30 +76,45 @@ def move_two (p_e, oi):
         random_choice +=1
 
     
-def move_three (p_e, h, w):
-    print("In move three")
+def move_three (p_e, opr):
+    ran = opr[random.randint(0,len(opr)-1)]
+
+    if(p_e[ran] == '+' or p_e[ran] == '*'):
+        if(p_e[ran] != p_e[ran+2]):
+            dup = p_e[ran]
+            p_e[ran] = p_e[ran+1]
+            p_e[ran+1] = dup
+    else:
+        if(p_e[ran] != p_e[ran-2]):
+           dup = p_e[ran]
+           p_e[ran] = p_e[ran+1]
+           p_e[ran+1] = dup
 
     
 def simulated(p_e, h, w):
   adj = []
   oi = []
+  opr = []
   adj_operand(p_e,adj)
   print (adj)
   operator_index(p_e,oi)
   print(oi)
   #choice = random.randint(1,3)
   print(p_e)
-  choice = 1
-  while(choice <3):
+  choice = 3
+  if(choice ==1):
       move_one (p_e,adj)
       print(p_e)
       print(adj)
-      choice+=1
-  #elif(choice == 2):
-     # move_two (p_e, oi)
-     # print(p_e)
-  #else:
-   #   move_three (p_e, h, w)
+  elif(choice == 2):
+      move_two (p_e, oi)
+      print(p_e)
+  else:
+      opr[:] = []
+      oper_opra(p_e, opr)
+      print (opr)
+      move_three (p_e, opr)
+      print(p_e)
       
 
 
